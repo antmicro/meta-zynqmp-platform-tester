@@ -1,0 +1,2 @@
+# Watchdog reset support
+YAML_COMPILER_FLAGS:append = " -DENABLE_EM -DENABLE_SCHEDULER "
