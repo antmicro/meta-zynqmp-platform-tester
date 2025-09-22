@@ -33,6 +33,9 @@ IMAGE_INSTALL = " \
     packagegroup-core-boot \
     ${COMMON_INSTALL} \
     ${CORE_IMAGE_EXTRA_INSTALL} \
+    i2c-tools \
+    util-linux \
+    watchdog \
     "
 
 #Create devfs entries for initramfs(bundle) image
