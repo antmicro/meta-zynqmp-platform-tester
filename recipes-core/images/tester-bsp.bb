@@ -36,6 +36,7 @@ IMAGE_INSTALL = " \
     ${COMMON_INSTALL} \
     ${CORE_IMAGE_EXTRA_INSTALL} \
     i2c-tools \
+    python3-protoplaster \
     util-linux \
     watchdog \
     "
