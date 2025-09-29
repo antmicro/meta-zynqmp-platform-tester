@@ -114,3 +114,47 @@ IMAGE_CMD:tester_qspi () {
     ln -sf ${IMAGE_NAME}${IMAGE_NAME_SUFFIX}.qspi ${IMAGE_LINK_NAME}.qspi
     cd -
 }
+
+CONVERSIONTYPES:append = " sd-fatimg"
+
+BOOT_VOLUME_ID ?= "BOOT"
+BOOT_SPACE ?= "1047552"
+IMAGE_ALIGNMENT ?= "1024"
+
+# This creates FAT partitioned SD image containing
+# BOOT.bin, boot.scr, Image, system.dtb, rootfs.cpio.gz.u-boot.
+# Usage: IMAGE_FSTYPES:append = " cpio.gz.u-boot.sd-fatimg"
+CONVERSION_CMD:sd-fatimg () {
+    SD_IMG="${IMAGE_NAME}${IMAGE_NAME_SUFFIX}.${type}.sd-fatimg"
+    BOOT_SPACE_ALIGNED=$(expr ${BOOT_SPACE} + ${IMAGE_ALIGNMENT} - 1)
+    BOOT_SPACE_ALIGNED=$(expr ${BOOT_SPACE_ALIGNED} - ${BOOT_SPACE_ALIGNED} % ${IMAGE_ALIGNMENT})
+    SDIMG_SIZE=$(expr ${IMAGE_ALIGNMENT} + ${BOOT_SPACE_ALIGNED})
+    dd if=/dev/zero of=${SD_IMG} bs=1024 count=0 seek=${SDIMG_SIZE}
+    parted -s ${SD_IMG} mklabel msdos
+    parted -s ${SD_IMG} unit KiB mkpart primary fat32 ${IMAGE_ALIGNMENT} $(expr ${BOOT_SPACE_ALIGNED} \+ ${IMAGE_ALIGNMENT} \- 1)
+    parted -s ${SD_IMG} set 1 boot on
+    parted ${SD_IMG} print
+    BOOT_BLOCKS=$(LC_ALL=C parted -s ${SD_IMG} unit b print | awk '/ 1 / { print substr($4, 1, length($4 -1)) / 512 /2 }')
+    rm -f ${WORKDIR}/${BOOT_VOLUME_ID}.img
+    mkfs.vfat -n "${BOOT_VOLUME_ID}" -S 512 -C ${WORKDIR}/${BOOT_VOLUME_ID}.img $BOOT_BLOCKS
+    if [ -e ${WORKDIR}/rootfs/boot/BOOT.bin ]; then
+        mcopy -i ${WORKDIR}/${BOOT_VOLUME_ID}.img -s  ${WORKDIR}/rootfs/boot/BOOT.bin ::/
+    fi
+    if [ -e ${WORKDIR}/rootfs/boot/boot.scr ]; then
+        mcopy -i ${WORKDIR}/${BOOT_VOLUME_ID}.img -s  ${WORKDIR}/rootfs/boot/boot.scr ::/
+    fi
+    if [ -e ${WORKDIR}/rootfs/boot/Image ]; then
+        mcopy -i ${WORKDIR}/${BOOT_VOLUME_ID}.img -s  ${WORKDIR}/rootfs/boot/Image ::/
+    fi
+    if [ -e ${WORKDIR}/rootfs/boot/system.dtb ]; then
+        mcopy -i ${WORKDIR}/${BOOT_VOLUME_ID}.img -s  ${WORKDIR}/rootfs/boot/system.dtb ::/
+    fi
+    if [ x"${INITRAMFS_IMAGE_BUNDLE}" != "x1" ]; then
+        mcopy -i ${WORKDIR}/${BOOT_VOLUME_ID}.img -s  ${IMAGE_NAME}.${type} ::rootfs.cpio.gz.u-boot
+    fi
+    dd if=${WORKDIR}/${BOOT_VOLUME_ID}.img of=${SD_IMG} conv=notrunc seek=1 bs=$(expr ${IMAGE_ALIGNMENT} \* 1024)
+}
+
+CONVERSION_DEPENDS_sd-fatimg = "mtools-native:do_populate_sysroot \
+                dosfstools-native:do_populate_sysroot \
+                parted-native:do_populate_sysroot"
