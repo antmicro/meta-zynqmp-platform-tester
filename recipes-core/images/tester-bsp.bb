@@ -4,7 +4,9 @@ LICENSE = "Apache-2.0"
 inherit core-image
 inherit image-types-tester
 
-IMAGE_FSTYPES += " wic"
+IMAGE_FSTYPES += " cpio.gz.u-boot.sd-fatimg"
+
+INITRAMFS_IMAGE = "core-image-minimal-initramfs"
 
 # Skip /boot when generating a cpio, jffs2
 TESTER_IMAGE_CPIO_SKIP += "! -path './boot/*'"
