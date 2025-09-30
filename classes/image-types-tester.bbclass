@@ -153,6 +153,7 @@ CONVERSION_CMD:sd-fatimg () {
         mcopy -i ${WORKDIR}/${BOOT_VOLUME_ID}.img -s  ${IMAGE_NAME}.${type} ::rootfs.cpio.gz.u-boot
     fi
     dd if=${WORKDIR}/${BOOT_VOLUME_ID}.img of=${SD_IMG} conv=notrunc seek=1 bs=$(expr ${IMAGE_ALIGNMENT} \* 1024)
+    ln -sf ${SD_IMG} ${IMAGE_LINK_NAME}.sd-fatimg
 }
 
 CONVERSION_DEPENDS_sd-fatimg = "mtools-native:do_populate_sysroot \
