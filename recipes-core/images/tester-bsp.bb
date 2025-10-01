@@ -35,6 +35,7 @@ IMAGE_INSTALL = " \
     packagegroup-core-boot \
     ${COMMON_INSTALL} \
     ${CORE_IMAGE_EXTRA_INSTALL} \
+    dosfstools \
     i2c-tools \
     python3-protoplaster \
     util-linux \
