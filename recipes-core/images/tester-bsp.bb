@@ -40,6 +40,7 @@ IMAGE_INSTALL = " \
     python3-protoplaster \
     util-linux \
     watchdog \
+    avahi-daemon \
     "
 
 #Create devfs entries for initramfs(bundle) image
