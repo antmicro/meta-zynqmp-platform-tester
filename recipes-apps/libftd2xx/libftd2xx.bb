@@ -17,11 +17,16 @@ ARCH_DIR:aarch64 = "linux-arm-v8"
 
 INSANE_SKIP:${PN} = "ldflags dev-so"
 FILES_SOLIBSDEV = ""
-FILES:${PN} += "${libdir}/libftd2xx.so.${PV} ${libdir}/libftd2xx.so"
+FILES:${PN} += "${libdir}/libftd2xx.so.${PV} ${libdir}/libftd2xx.so /dev /dev/bus"
 
 do_install () {
 	install -m 0755 -d ${D}${libdir}
 	oe_soinstall ${S}/${ARCH_DIR}/libftd2xx.so.${PV} ${D}${libdir}
 	install -d ${D}${includedir}
 	install -m 0755 ${S}/${ARCH_DIR}/*.h ${D}${includedir}
+	# libftd2xx is built to use /dev/bus to access usb devices
+	# but in modern kernels, /sys/bus is used instead.
+	# See: https://stackoverflow.com/questions/25793399/mount-usbfs-on-linux-3-10-kernel/29997253#29997253
+	mkdir -p ${D}/dev
+	ln -rsf ${D}/sys/bus ${D}/dev/bus
 }
