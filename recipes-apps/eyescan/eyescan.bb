@@ -2,7 +2,7 @@ SUMMARY = "Connect to the DAC38J8x using JTAG and perform eyescan test"
 LICENSE = "Apache-2.0"
 
 SRC_URI = "git://github.com/antmicro/dac-eyescan-test.git;branch=main;protocol=http"
-SRCREV = "4165147a648fc98fcc33dcbb5f8cb2c76d6c8734"
+SRCREV = "b3a672514a6d62c0016a0399fecb350ae8fb5504"
 
 LIC_FILES_CHKSUM = "file://LICENSE;md5=86d3f3a95c324c9479bd8986968f4327"
 
